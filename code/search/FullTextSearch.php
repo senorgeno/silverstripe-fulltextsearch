@@ -3,11 +3,14 @@
 /**
  * Base class to manage active search indexes.
  */
-class FullTextSearch {
+class FullTextSearch extends Object{
 
 	static protected $all_indexes = null;
 
 	static protected $indexes_by_subclass = array();
+	
+	private static $use_these_classes = array();
+	static protected $cached_classes = array();
 
 	/**
 	 * Get all the instantiable search indexes (so all the user created indexes, but not the connector or library level
@@ -20,10 +23,22 @@ class FullTextSearch {
 	static function get_indexes($class = null, $rebuild = false) {
 		if ($rebuild) { self::$all_indexes = null; self::$indexes_by_subclass = array(); }
 
-		if (!$class) {
+		if(FullTextSearch::config()->use_these_classes){
+			if(!self::$cached_classes){
+				$concrete = array();
+				$classes = FullTextSearch::config()->use_these_classes;
+				foreach ($classes as $class) {
+						$ref = new ReflectionClass($class);
+						if ($ref->isInstantiable()) $concrete[$class] = singleton($class);
+				}
+				self::$cached_classes = $concrete;
+			}
+			return self::$cached_classes;
+		}
+		else if (!$class) {
 			if (self::$all_indexes === null) {
 				$classes = ClassInfo::subclassesFor('SearchIndex');
-
+				
 				$concrete = array();
 				foreach ($classes as $class) {
 					$ref = new ReflectionClass($class);
@@ -31,8 +46,8 @@ class FullTextSearch {
 				}
 
 				self::$all_indexes = $concrete;
-			}
-
+			} 
+			
 			return self::$all_indexes;
 		}
 		else {
