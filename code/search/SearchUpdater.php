@@ -23,30 +23,30 @@ class SearchUpdater extends Object {
 		$current = DB::getConn();
 		if (!$current || @$current->isManipulationCapture) return; // If not yet set, or its already captured, just return
 
-		$type = get_class($current);
-		$file = TEMP_FOLDER."/.cache.SMC.$type";
-
-		if (!is_file($file)) {
-			file_put_contents($file, "<?php
-				class SearchManipulateCapture_$type extends $type {
-					public \$isManipulationCapture = true;
-
-					function manipulate(\$manipulation) {
-						\$res = parent::manipulate(\$manipulation);
-						SearchUpdater::handle_manipulation(\$manipulation);
-						return \$res;
-					}
-				}
-			");
-		}
-
-		require_once($file);
-		$dbClass = 'SearchManipulateCapture_'.$type;
-
-		$captured = new $dbClass($databaseConfig);
-		// The connection might have had it's name changed (like if we're currently in a test)
-		$captured->selectDatabase($current->currentDatabase());
-		DB::setConn($captured);
+//		$type = get_class($current);
+//		$file = TEMP_FOLDER."/.cache.SMC.$type";
+//
+//		if (!is_file($file)) {
+//			file_put_contents($file, "<?php
+//				class SearchManipulateCapture_$type extends $type {
+//					public \$isManipulationCapture = true;
+//
+//					function manipulate(\$manipulation) {
+//						\$res = parent::manipulate(\$manipulation);
+//						SearchUpdater::handle_manipulation(\$manipulation);
+//						return \$res;
+//					}
+//				}
+//			");
+//		}
+//
+//		require_once($file);
+//		$dbClass = 'SearchManipulateCapture_'.$type;
+//
+//		$captured = new $dbClass($databaseConfig);
+//		// The connection might have had it's name changed (like if we're currently in a test)
+//		$captured->selectDatabase($current->currentDatabase());
+//		DB::setConn($captured);
 	}
 
 	static $registered = false;
